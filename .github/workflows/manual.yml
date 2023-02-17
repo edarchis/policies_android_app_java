@@ -27,6 +27,9 @@ on:
       cli_assets_dir:
         description: Asserts folder for images, json files.... Only works with .cli
         required: false
+      b64_keystore:
+        description: Base64_encoded keystore
+        required: false
 # Branch is chosen by default in github manual actions
 
 jobs:
@@ -35,6 +38,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Setup keystores
+        run: |
+          if [[ -z "${{ github.event.inputs.b64_keystore }}" ]]; then
+            if [[ -z "${{ secrets.DEBUG_KEYSTORE }}" ]]; then
+              echo "WARNING: secrets.DEBUG_KEYSTORE is not defined"
+            else
+              echo "${{ secrets.DEBUG_KEYSTORE }}" | base64 -d > debug.keystore
+            fi
+          else
+            echo "${{ github.event.inputs.b64_keystore }}" | base64 -d > debug.keystore
+          fi
+          cp debug.keystore ~/.android/debug.keystore
+          sha1sum debug.keystore
 
       - name: Setup JDK 11
         uses: actions/setup-java@v2

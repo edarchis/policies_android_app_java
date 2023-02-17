@@ -19,8 +19,10 @@ jobs:
           if [[ -z "${{ secrets.DEBUG_KEYSTORE }}" ]]; then
             echo "WARNING: secrets.DEBUG_KEYSTORE is not defined"
           else
-            echo "${{ secrets.DEBUG_KEYSTORE }}" > debug.keystore
+            echo "${{ secrets.DEBUG_KEYSTORE }}" | base64 -d > debug.keystore
           fi
+          cp debug.keystore ~/.android/debug.keystore
+          sha1sum debug.keystore
 
       - name: Setup JDK 11
         uses: actions/setup-java@v2
